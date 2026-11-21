@@ -31,6 +31,11 @@
   @media (prefers-reduced-motion:reduce){.grid,.card::after,.pulse{animation:none!important}}
 
   header{max-width:1100px;margin:0 auto;padding:max(28px,env(safe-area-inset-top)) 18px 8px}
+  .top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px}
+  .back{display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:0 14px;border-radius:12px;text-decoration:none;
+        font-weight:700;font-size:13px;color:var(--ink);background:var(--panel);border:1px solid var(--line);backdrop-filter:blur(8px);transition:border-color .2s,box-shadow .2s}
+  .back:hover,.back:focus-visible{border-color:var(--neon);box-shadow:0 0 18px -6px var(--neon);outline:none}
+  .back span{color:var(--neon);font-size:16px}
   .tag{display:inline-flex;align-items:center;gap:8px;font:600 11px/1 "Orbitron",sans-serif;letter-spacing:.22em;text-transform:uppercase;color:var(--neon);
       padding:7px 12px;border:1px solid rgba(56,242,208,.35);border-radius:999px;background:rgba(56,242,208,.06)}
   .pulse{width:7px;height:7px;border-radius:50%;background:var(--neon);box-shadow:0 0 12px var(--neon);animation:blink 1.6s ease-in-out infinite}
@@ -81,7 +86,10 @@
 <div class="grid" aria-hidden="true"></div>
 
 <header>
-  <span class="tag"><span class="pulse"></span>Erişim onaylandı</span>
+  <div class="top">
+    <a class="back" id="backToApp" href="https://vitatakip.com.tr/" aria-label="VitaTakip'e geri dön"><span aria-hidden="true">←</span> VitaTakip'e dön</a>
+    <span class="tag"><span class="pulse"></span>Erişim onaylandı</span>
+  </div>
   <h1>Oyun Merkezi</h1>
   <p class="sub">Koleksiyondaki oyunlardan birini seç, hemen oyna. Yeni oyunlar eklendikçe raf kendiliğinden dolar.</p>
   <div class="bar"><span class="chip" id="count">Yükleniyor…</span><span class="chip">Tarayıcıda çalışır · kurulum yok</span></div>
@@ -116,6 +124,11 @@ function card(g, i) {
     <div class="body">${tags ? `<div class="meta">${tags}</div>` : ""}<h2>${esc(g.title)}</h2><p>${esc(g.desc || "")}</p><span class="play">▶ Oyna</span></div></a>`;
 }
 function slots(n) { return Array.from({ length: n }, () => `<div class="slot" aria-hidden="true"><div><b>YAKINDA</b><span>Yeni oyun yükleniyor…</span></div></div>`).join(""); }
+
+/* Opened from VitaTakip in a new tab: closing it returns to the app tab; otherwise the link opens the app */
+document.getElementById("backToApp").addEventListener("click", e => {
+  if (window.opener && !window.opener.closed) { e.preventDefault(); try { window.opener.focus(); } catch (_) {} window.close(); }
+});
 
 fetch("games.json", { cache: "no-store" }).then(r => r.json()).catch(() => []).then(list => {
   const games = Array.isArray(list) ? list.filter(g => g && g.title && g.path) : [];
