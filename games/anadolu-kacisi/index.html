@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="theme-color" content="#070b12" />
+  <title>Anadolu Kaçışı: Gerçekçi Kaçış · Osmanlı · Anadolu — Yapımcı: ABDULSAMET</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230b1120'/%3E%3Crect x='14' y='12' width='36' height='42' rx='18' fill='%23ef4444'/%3E%3Crect x='20' y='18' width='24' height='36' rx='12' fill='%23fbbf24'/%3E%3Ccircle cx='38' cy='36' r='3' fill='%230b1120'/%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div id="app">
+    <div id="stageWrap">
+      <canvas id="threeCanvas" width="1280" height="720"></canvas>
+      <canvas id="gameCanvas" width="1280" height="720"></canvas>
+
+      <!-- Minimal In-Game HUD -->
+      <header id="gameHud" class="hud hidden">
+        <div class="hud-left">
+          <span id="hudChapterPill" class="chapter-pill">BÖLÜM 1 · YAĞMUR ORMANI</span>
+          <span id="hudDifficultyBadge" class="diff-badge">KOLAY</span>
+          <div class="stage-meta">
+            <strong id="hudStageTitle">1-1 · Sadece Kapıya Yürü</strong>
+            <span id="hudStageSub" class="stage-sub">Orman yolu gayet sağlam görünüyor...</span>
+          </div>
+        </div>
+
+        <div id="hudAlerts" class="hud-alerts"></div>
+
+        <div class="hud-right">
+          <div id="hudScore2p" class="stat-pill hidden" title="2 Kişilik Skor">
+            <span class="stat-label">SKOR</span>
+            <strong id="hudScore2pText">O1: 0 · O2: 0</strong>
+          </div>
+          <div class="stat-pill" title="Ölüm Sayısı">
+            <span class="stat-label">ÖLÜM</span>
+            <strong id="hudDeaths">0</strong>
+          </div>
+          <div class="stat-pill" title="Süre">
+            <span class="stat-label">SÜRE</span>
+            <strong id="hudTimer">00:00.0</strong>
+          </div>
+          <button id="btnChaosHud" class="icon-btn" title="Kaos Fiziği Aç/Kapat (C)">🌀</button>
+          <button id="btn3dHud" class="icon-btn" title="Three.js 3D Arkaplan (3)">3D</button>
+          <button id="btnRestart" class="icon-btn" title="Yeniden Başlat (R)">↻</button>
+          <button id="btnMapHud" class="icon-btn" title="Dünya Haritası (M)">🗺</button>
+          <button id="btnMute" class="icon-btn" title="Sesi Aç/Kapat (V)">🔊</button>
+          <button id="btnPause" class="icon-btn" title="Duraklat (Esc)">⏸</button>
+          <button id="btnFullscreen" class="icon-btn" title="Tam Ekran">⛶</button>
+        </div>
+        <div id="hudMechanicPill" class="mechanic-pill hidden"></div>
+      </header>
+
+      <!-- Interactive Overworld Map Chrome (over #gameCanvas) -->
+      <div id="mapChrome" class="map-chrome hidden">
+        <div class="map-top-bar">
+          <div class="map-title-group">
+            <strong id="mapHeaderTitle">MOD 1 · KLASİK (35)</strong>
+            <span class="credit-pill">Yapımcı ve Yönetici: <strong>ABDULSAMET</strong></span>
+          </div>
+          <div class="map-top-actions">
+            <button id="btnMapCampaignToggle" class="btn primary small">Mod 2: Osmanlı</button>
+            <button id="btnMapModeToggle" class="btn accent small">Mod: 1 Oyuncu</button>
+            <button id="btnResetSave" class="btn ghost small">Sıfırla</button>
+            <button id="btnBackMenu" class="btn secondary small">Ana Menü</button>
+          </div>
+        </div>
+
+        <div class="map-bottom-bar">
+          <div class="map-selected-info">
+            <span id="mapSelectedDiff" class="diff-badge">KOLAY</span>
+            <div>
+              <strong id="mapSelectedTitle">1-1 · Sadece Kapıya Yürü</strong>
+              <span id="mapSelectedMeta" class="map-meta-sub">Bölüm 1: Yağmur Ormanı · Sıralı İlerleme</span>
+            </div>
+          </div>
+          <div class="map-bottom-actions">
+            <span class="map-hint">◀ ▶ Seç · Boşluk / Çift Tıkla Oyna</span>
+            <button id="btnMapPlay" class="btn primary small">Oyna (Boşluk)</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Menu -->
+      <section id="menuOverlay" class="overlay">
+        <div class="menu-card">
+          <div class="tag-badge">KESİNLİKLE BİR TROL OYUNU DEĞİL</div>
+          <h1 class="game-title">ANADOLU KAÇIŞI</h1>
+          <p id="menuSubtitle" class="game-subtitle">3 OYUN MODU · 15 HARİTA · 105 AŞAMA</p>
+          <p id="menuDesc" class="menu-desc">
+            İstediğin modu seç ve sıralı ilerleyişle kolaydan çok zora tüm tuzakları aş!
+          </p>
+
+          <!-- Campaign Mode Selector: Mod 1 vs Mod 2 vs Mod 3 (Anadolu Şehirleri) -->
+          <div class="campaign-grid">
+            <button id="btnCampaignClassic" class="campaign-card active" type="button">
+              <span class="campaign-badge">MOD 1</span>
+              <strong>Gerçekçi Kaçış</strong>
+              <small>5 Biyom · 35 Aşama</small>
+            </button>
+            <button id="btnCampaignOttoman" class="campaign-card ottoman" type="button">
+              <span class="campaign-badge">MOD 2</span>
+              <strong>Fütüristik Osmanlı</strong>
+              <small>5 Siber Harita · 35 Aşama</small>
+            </button>
+            <button id="btnCampaignTurkey" class="campaign-card turkey" type="button">
+              <span class="campaign-badge">MOD 3</span>
+              <strong>Anadolu Şehirleri</strong>
+              <small>5 Şehir · 35 Aşama</small>
+            </button>
+          </div>
+
+          <!-- Character Selector (shown for Mod 2 Ottoman & Mod 3 Anatolian Cities) -->
+          <div id="characterPicker" class="character-picker hidden">
+            <div class="char-picker-head">
+              <span id="charPickerTitle">OSMANLI SİBER KARAKTER SEÇİMİ</span>
+              <div class="char-target-tabs">
+                <button id="btnCharTarget1" class="char-tab active" type="button">O1: Yeniçeri</button>
+                <button id="btnCharTarget2" class="char-tab" type="button">O2: Neo-Sipahi</button>
+              </div>
+            </div>
+            <div class="char-grid">
+              <button class="char-card active" data-char="yeniceri" type="button">
+                <span class="char-icon">⚔️</span>
+                <strong>Siber Yeniçeri</strong>
+                <small>Börk &amp; Kaftan</small>
+              </button>
+              <button class="char-card" data-char="sipahi" type="button">
+                <span class="char-icon">🛡️</span>
+                <strong>Neo-Sipahi</strong>
+                <small>Hologram Miğfer</small>
+              </button>
+              <button class="char-card" data-char="hezarfen" type="button">
+                <span class="char-icon">🪽</span>
+                <strong>Hezarfen Pilot</strong>
+                <small>Foton Kanat</small>
+              </button>
+              <button class="char-card" data-char="akinci" type="button">
+                <span class="char-icon">🌙</span>
+                <strong>Kızıl Akıncı</strong>
+                <small>Lazer Vizör</small>
+              </button>
+            </div>
+          </div>
+
+          <div class="mode-grid">
+            <button id="btnMode1P" class="mode-card" type="button">
+              <div class="mode-icon">🧑</div>
+              <strong>1 OYUNCU</strong>
+              <span>Tek Kişilik Kaçış</span>
+            </button>
+            <button id="btnMode2P" class="mode-card two-p" type="button">
+              <div class="mode-icon">🧑🧑</div>
+              <strong>2 OYUNCU</strong>
+              <span>Aynı Klavyede Yarış</span>
+            </button>
+          </div>
+
+          <div class="menu-actions">
+            <button id="btnOpenMap" class="btn secondary large">Dünya Haritası (35 Aşama)</button>
+            <button id="btnChaosMenu" class="btn accent large" type="button">🌀 Kaos Fiziği: Kapalı</button>
+          </div>
+
+          <div class="controls-strip">
+            <span><strong>1K:</strong> <kbd>A</kbd><kbd>D</kbd> / <kbd>◀</kbd><kbd>▶</kbd> · <kbd>W</kbd><kbd>▲</kbd><kbd>Boşluk</kbd></span>
+            <span><strong>2K:</strong> O1 <kbd>W</kbd><kbd>A</kbd><kbd>D</kbd> · O2 <kbd>▲</kbd><kbd>◀</kbd><kbd>▶</kbd></span>
+            <span><kbd>E</kbd> Özel Güç</span>
+            <span><kbd>R</kbd> Yeniden</span>
+            <span><kbd>M</kbd> Harita</span>
+          </div>
+
+          <div class="producer-footer">
+            <a href="../../" style="color:inherit;margin-right:14px">← Oyunlara dön</a>Yapımcı ve Yönetici: <strong>ABDULSAMET</strong>
+          </div>
+        </div>
+      </section>
+
+      <!-- Pause Overlay -->
+      <section id="pauseOverlay" class="overlay hidden">
+        <div class="modal-card">
+          <h2>Oyun Duraklatıldı</h2>
+          <p id="pauseStageName" class="modal-sub">1-1 · Sadece Kapıya Yürü</p>
+          <div class="modal-actions">
+            <button id="btnResume" class="btn primary">Devam Et</button>
+            <button id="btnPauseRestart" class="btn secondary">Bölümü Sıfırla</button>
+            <button id="btnPauseMap" class="btn secondary">Haritaya Dön</button>
+            <button id="btnPauseMenu" class="btn ghost">Ana Menü</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Stage Clear Overlay -->
+      <section id="clearOverlay" class="overlay hidden">
+        <div class="modal-card clear-card">
+          <div id="clearBadge" class="tag-badge success">AŞAMA GEÇİLDİ</div>
+          <h2 id="clearTitle">1-1 Tamamlandı!</h2>
+          <p id="clearWinnerText" class="modal-sub hidden"></p>
+          <div class="clear-stats">
+            <div><span>Süre</span><strong id="clearTime">0.0s</strong></div>
+            <div><span>Ölüm</span><strong id="clearDeaths">0</strong></div>
+          </div>
+          <div class="modal-actions">
+            <button id="btnNextStage" class="btn primary">Sonraki Aşama (Boşluk)</button>
+            <button id="btnClearMap" class="btn secondary">Harita</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Grand Victory Overlay -->
+      <section id="victoryOverlay" class="overlay hidden">
+        <div class="modal-card victory-card">
+          <div class="tag-badge success">35 / 35 TAMAMLANDI</div>
+          <h2>Şeytanın Tüm Tuzaklarını Aştın!</h2>
+          <p class="modal-sub">5 farklı biyomdaki 35 aşamayı da tamamlayarak efsane oldun.</p>
+          <div class="clear-stats">
+            <div><span>Toplam Süre</span><strong id="victoryTime">00:00</strong></div>
+            <div><span>Toplam Ölüm</span><strong id="victoryDeaths">0</strong></div>
+            <div><span>Rütbe</span><strong id="victoryRank">S</strong></div>
+          </div>
+          <div class="producer-footer">Yapımcı ve Yönetici: <strong>ABDULSAMET</strong></div>
+          <div class="modal-actions">
+            <button id="btnVictoryMap" class="btn primary">Haritayı İncele</button>
+            <button id="btnVictoryMenu" class="btn secondary">Ana Menü</button>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Multi-Touch Controls for Mobile Phones & Tablets -->
+    <div id="touchControls" class="touch-controls hidden">
+      <div class="touch-left">
+        <button id="touchLeft" class="touch-btn" type="button" aria-label="Sol">◀</button>
+        <button id="touchRight" class="touch-btn" type="button" aria-label="Sağ">▶</button>
+      </div>
+      <div class="touch-right">
+        <button id="touchAbility" class="touch-btn ability" type="button" aria-label="Özel Güç">⏳</button>
+        <button id="touchJump" class="touch-btn jump" type="button" aria-label="Zıpla">ZIPLA</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="./game.bundle.js"></script>
+</body>
+</html>

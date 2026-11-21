@@ -1,1 +1,14 @@
-[]
+[
+  {
+    "title": "Anadolu Kaçışı",
+    "desc": "Tuzaklarla dolu 105 aşamada kapıya ulaş. 3 mod, 15 harita, tek veya iki kişilik.",
+    "path": "games/anadolu-kacisi/",
+    "icon": "🏔️",
+    "theme": "sunset",
+    "tags": [
+      "platform",
+      "1-2 oyuncu",
+      "105 aşama"
+    ]
+  }
+]
