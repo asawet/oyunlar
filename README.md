@@ -12,3 +12,6 @@ Kişisel oyun koleksiyonu. VitaTakip > Ayarlar > Veriler ve yedek > "Şifreli" b
 
 Temalar (her oyunun kendi arka planı): `neon`, `ocean`, `lava`, `forest`, `space`, `circuit`, `sunset`, `ice`.
 Tema yazılmazsa sıradaki tema otomatik verilir.
+
+## İnternetsiz kullanım ve indirme
+Site PWA olarak çalışır. `games.json` içindeki oyunlar, `index.html`, `src`/`href` ve CSS `url()` bağlantılarıyla otomatik olarak çevrimdışı kaydedilir. Oyun kodunda JavaScript ile sonradan yüklenen dosyalar varsa, ilk açılıştan sonra önbelleğe girer.
