@@ -10,5 +10,16 @@
       "1-2 oyuncu",
       "105 aşama"
     ]
+  },
+  {
+    "title": "SavetCraft",
+    "desc": "Sonsuz blok dünyasında kaz, üret, köyleri koru, batık tapınaklara in. Klavye ve fare ister.",
+    "path": "games/savetcraft/",
+    "icon": "⛏️",
+    "theme": "forest",
+    "tags": [
+      "sandbox",
+      "hayatta kalma"
+    ]
   }
 ]
