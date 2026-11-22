@@ -2,16 +2,16 @@
 <html lang="tr">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
   <title>SavetCraft — Yapımcı: ABDULSAMET</title>
   <meta name="theme-color" content="#15211f">
   <meta name="robots" content="noindex">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%23855b42'/%3E%3Crect width='16' height='6' fill='%235caa56'/%3E%3C/svg%3E">
-  <!-- Offline list read by the hub service worker: href="Build/WebGL.data.unityweb" href="Build/WebGL.framework.js.unityweb" href="Build/WebGL.wasm.unityweb" href="Build/WebGL.loader.js" -->
+  <!-- Offline list read by the hub service worker: href="Build-v19/WebGL.data.unityweb" href="Build-v19/WebGL.framework.js.unityweb" href="Build-v19/WebGL.wasm.unityweb" href="Build-v19/WebGL.loader.js" -->
   <style>
     :root { --ink: #eef3ef; --muted: #9fb2ad; --accent: #ffbd47; --ground: #15211f; --track: #2b3b39; --danger: #ff7a68; }
-    html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; background: var(--ground); }
-    #unity-canvas { position: fixed; inset: 0; display: block; width: 100vw; height: 100vh; outline: none; background: var(--ground); }
+    html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; overscroll-behavior: none; background: var(--ground); -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+    #unity-canvas { position: fixed; inset: 0; display: block; width: 100vw; height: 100vh; outline: none; touch-action: none; background: var(--ground); }
     #unity-loading-bar { position: fixed; inset: 0; display: flex; flex-direction: column; justify-content: center; padding: 0 max(32px, 12vw); background: var(--ground); color: var(--ink); font-family: "Courier New", monospace; }
     #title { margin: 0; color: var(--accent); font-size: clamp(36px, 7vw, 72px); font-weight: 700; letter-spacing: .08em; }
     #subtitle { margin: 8px 0 40px; color: var(--muted); font-size: 16px; letter-spacing: .12em; }
@@ -19,21 +19,18 @@
     #fill { width: 0; height: 100%; background: var(--accent); transition: width .15s linear; }
     #credit { position: fixed; left: max(32px, 12vw); bottom: 32px; margin: 0; color: var(--muted); font-size: 14px; letter-spacing: .1em; }
     #error { display: none; margin: 24px 0 0; max-width: 620px; color: var(--danger); font-size: 15px; line-height: 1.5; }
-    #hub-back { position: fixed; top: max(12px, env(safe-area-inset-top)); right: 12px; z-index: 20; display: inline-flex; align-items: center; min-height: 40px; padding: 0 14px; border: 1px solid rgba(255, 189, 71, .55); border-radius: 8px; background: rgba(13, 22, 21, .86); color: var(--ink); font: 700 13px system-ui, sans-serif; text-decoration: none; }
+#hub-back { position: fixed; top: max(12px, env(safe-area-inset-top)); right: 12px; z-index: 20; display: inline-flex; align-items: center; min-height: 40px; padding: 0 14px; border: 1px solid rgba(255, 189, 71, .55); border-radius: 8px; background: rgba(13, 22, 21, .86); color: var(--ink); font: 700 13px system-ui, sans-serif; text-decoration: none; }
     #hub-back:hover, #hub-back:focus-visible { background: #24332f; border-color: var(--accent); outline: none; }
-    body.playing #hub-back { display: none; }
-    #device-note { display: none; margin: 18px 0 0; color: var(--accent); font-size: 14px; line-height: 1.5; }
-    @media (hover: none) and (pointer: coarse) { #device-note { display: block; } }
+    body.playing #hub-back, body.window-open #hub-back { display: none; }
   </style>
 </head>
 <body>
-  <canvas id="unity-canvas" tabindex="-1"></canvas>
   <a id="hub-back" href="../../">← Oyunlara dön</a>
+  <canvas id="unity-canvas" tabindex="-1"></canvas>
   <div id="unity-loading-bar" role="status">
     <h1 id="title">SAVETCRAFT</h1>
     <p id="subtitle">DÜNYA HAZIRLANIYOR</p>
     <div id="track"><div id="fill"></div></div>
-    <p id="device-note">Bu oyun klavye ve fare ile oynanır.</p>
     <p id="error"></p>
     <p id="credit">YAPIMCI: ABDULSAMET</p>
   </div>
@@ -42,9 +39,6 @@
     const loading = document.querySelector("#unity-loading-bar");
     const fill = document.querySelector("#fill");
     const error = document.querySelector("#error");
-
-    // The way back to the game center stays out of sight while the mouse is captured for play.
-    document.addEventListener("pointerlockchange", () => document.body.classList.toggle("playing", document.pointerLockElement === canvas));
 
     // Browsers may refuse pointer lock. Unity would treat that rejection as a fatal error and freeze the game.
     const requestLock = Element.prototype.requestPointerLock;
@@ -60,7 +54,12 @@
 
     // Right mouse places blocks, so the browser menu must stay closed.
     canvas.addEventListener("contextmenu", event => event.preventDefault());
+    // The way back to the game center stays out of sight while the mouse is captured for play.
+    document.addEventListener("pointerlockchange", () => { if (!matchMedia("(pointer: coarse)").matches) document.body.classList.toggle("playing", document.pointerLockElement === canvas); });
+
     window.addEventListener("keydown", event => {
+      if (event.target instanceof HTMLInputElement) return;
+      if (event.code === "KeyG" && event.ctrlKey) event.preventDefault();
       if (event.code === "Space" || event.code.startsWith("Arrow")) event.preventDefault();
     });
 
@@ -70,13 +69,13 @@
     }
 
     const script = document.createElement("script");
-    script.src = "Build/WebGL.loader.js";
+    script.src = "Build-v19/WebGL.loader.js";
     script.onerror = () => showError("Oyun dosyaları yüklenemedi.");
     script.onload = () => {
       createUnityInstance(canvas, {
-        dataUrl: "Build/WebGL.data.unityweb",
-        frameworkUrl: "Build/WebGL.framework.js.unityweb",
-        codeUrl: "Build/WebGL.wasm.unityweb",
+        dataUrl: "Build-v19/WebGL.data.unityweb",
+        frameworkUrl: "Build-v19/WebGL.framework.js.unityweb",
+        codeUrl: "Build-v19/WebGL.wasm.unityweb",
         streamingAssetsUrl: "StreamingAssets",
         companyName: "Abdulsamet",
         productName: "SavetCraft",
