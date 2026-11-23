@@ -23,8 +23,12 @@
       color: #FBF2DF; font: 700 22px/1.2 system-ui, sans-serif; letter-spacing: .04em; text-align: center; padding: 16px; }
     #track { width: min(280px, 70vw); height: 8px; background: #5A5048; }
     #fill { width: 0; height: 100%; background: #F5C542; }
+    #fullscreen { display: none; position: fixed; top: max(12px, env(safe-area-inset-top)); right: max(12px, env(safe-area-inset-right)); z-index: 20; min-height: 40px; padding: 0 14px; border: 0; border-radius: 10px; background: rgba(36, 31, 46, .9); color: #FBF2DF; font: 700 14px/1 system-ui, sans-serif; cursor: pointer; }
+    body.in-menu.can-fullscreen #fullscreen { display: block; }
+    #fullscreen:hover, #fullscreen:focus-visible { background: #3a3347; outline: 2px solid #F5C542; }
+    @media (orientation: portrait) { #fullscreen { top: 22vw; right: 8px; min-height: 36px; padding: 0 10px; font-size: 13px; } }
   </style>
-  <!-- Offline list read by the hub service worker: href="Build-v1/256ec3658f6b6c53af400f10acc09f44.data.unityweb" href="Build-v1/28936958a7db1e641856e545b522c56a.wasm.unityweb" href="Build-v1/66d70071fb3f26e112327db7125b7299.framework.js.unityweb" href="Build-v1/9687180f046c0bbba2477c3991745c64.loader.js" -->
+  <!-- Offline list read by the hub service worker: href="Build-v2/256ec3658f6b6c53af400f10acc09f44.data.unityweb" href="Build-v2/28936958a7db1e641856e545b522c56a.wasm.unityweb" href="Build-v2/66d70071fb3f26e112327db7125b7299.framework.js.unityweb" href="Build-v2/9687180f046c0bbba2477c3991745c64.loader.js" -->
   <style>
     #hub-back { display: none; position: fixed; top: max(12px, env(safe-area-inset-top)); left: 12px; z-index: 20; align-items: center; min-height: 40px; padding: 0 14px; border-radius: 10px; background: rgba(36, 31, 46, .9); color: #FBF2DF; font: 700 14px/1 system-ui, sans-serif; text-decoration: none; }
     body.in-menu #hub-back { display: inline-flex; }
@@ -33,6 +37,7 @@
   </style>
 </head>
 <body>
+  <button id="fullscreen" type="button">Tam Ekran</button>
   <a id="hub-back" href="../../">← Oyunlara dön</a>
   <canvas id="game" tabindex="-1"></canvas>
   <div id="loading" role="status"><span id="message">Anadolu Koşusu yükleniyor</span><div id="track"><div id="fill"></div></div></div>
@@ -40,14 +45,34 @@
     (function () {
       var canvas = document.getElementById('game');
       var loading = document.getElementById('loading');
+      var root = document.documentElement;
+      var fullButton = document.getElementById('fullscreen');
+      var enter = root.requestFullscreen || root.webkitRequestFullscreen;
+      var leave = document.exitFullscreen || document.webkitExitFullscreen;
+      var current = function () { return document.fullscreenElement || document.webkitFullscreenElement; };
+      var toggle = function () {
+        var result = current() ? leave.call(document) : enter.call(root);
+        if (result && result.catch) result.catch(function () {});
+        canvas.focus();
+      };
+      var label = function () { fullButton.textContent = current() ? 'Tam Ekrandan Çık' : 'Tam Ekran'; };
+      if (enter && leave) {
+        document.body.classList.add('can-fullscreen');
+        fullButton.addEventListener('click', toggle);
+        document.addEventListener('fullscreenchange', label);
+        document.addEventListener('webkitfullscreenchange', label);
+        window.addEventListener('keydown', function (event) {
+          if (event.code === 'KeyF' && !event.repeat && !event.ctrlKey && !event.metaKey && !event.altKey) toggle();
+        });
+      }
       var script = document.createElement('script');
-      script.src = 'Build-v1/9687180f046c0bbba2477c3991745c64.loader.js';
+      script.src = 'Build-v2/9687180f046c0bbba2477c3991745c64.loader.js';
       script.onerror = function () { document.getElementById('message').textContent = 'Oyun yüklenemedi. Sayfayı yenileyin.'; };
       script.onload = function () {
         createUnityInstance(canvas, {
-          dataUrl: 'Build-v1/256ec3658f6b6c53af400f10acc09f44.data.unityweb',
-          frameworkUrl: 'Build-v1/66d70071fb3f26e112327db7125b7299.framework.js.unityweb',
-          codeUrl: 'Build-v1/28936958a7db1e641856e545b522c56a.wasm.unityweb',
+          dataUrl: 'Build-v2/256ec3658f6b6c53af400f10acc09f44.data.unityweb',
+          frameworkUrl: 'Build-v2/66d70071fb3f26e112327db7125b7299.framework.js.unityweb',
+          codeUrl: 'Build-v2/28936958a7db1e641856e545b522c56a.wasm.unityweb',
           streamingAssetsUrl: 'StreamingAssets',
           companyName: "DefaultCompany",
           productName: "Anadolu Koşusu",
