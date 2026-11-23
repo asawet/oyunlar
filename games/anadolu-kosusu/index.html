@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#2E2A33">
+  <meta name="description" content="Anadolu şehirlerinde geçen, yöresel esprili üç şeritli sonsuz koşu oyunu.">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' blob:; worker-src 'self' blob:; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' data: blob:; connect-src 'self' data: blob:; object-src 'none'; base-uri 'self'; form-action 'none'">
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Anadolu Koşusu">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Anadolu Koşusu</title>
+  <style>
+    html, body { margin: 0; height: 100%; background: #2E2A33; overflow: hidden; overscroll-behavior: none; }
+    #game { position: fixed; top: env(safe-area-inset-top, 0px); left: env(safe-area-inset-left, 0px);
+      width: calc(100% - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px));
+      height: calc(100% - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+      display: block; outline: none; touch-action: none; }
+    #loading { position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px;
+      color: #FBF2DF; font: 700 22px/1.2 system-ui, sans-serif; letter-spacing: .04em; text-align: center; padding: 16px; }
+    #track { width: min(280px, 70vw); height: 8px; background: #5A5048; }
+    #fill { width: 0; height: 100%; background: #F5C542; }
+  </style>
+  <!-- Offline list read by the hub service worker: href="Build-v1/256ec3658f6b6c53af400f10acc09f44.data.unityweb" href="Build-v1/28936958a7db1e641856e545b522c56a.wasm.unityweb" href="Build-v1/66d70071fb3f26e112327db7125b7299.framework.js.unityweb" href="Build-v1/9687180f046c0bbba2477c3991745c64.loader.js" -->
+  <style>
+    #hub-back { display: none; position: fixed; top: max(12px, env(safe-area-inset-top)); left: 12px; z-index: 20; align-items: center; min-height: 40px; padding: 0 14px; border-radius: 10px; background: rgba(36, 31, 46, .9); color: #FBF2DF; font: 700 14px/1 system-ui, sans-serif; text-decoration: none; }
+    body.in-menu #hub-back { display: inline-flex; }
+    #hub-back:hover, #hub-back:focus-visible { background: #3a3347; outline: 2px solid #F5C542; }
+    @media (orientation: portrait) { #hub-back { top: 22vw; left: 8px; min-height: 36px; padding: 0 10px; font-size: 13px; } }
+  </style>
+</head>
+<body>
+  <a id="hub-back" href="../../">← Oyunlara dön</a>
+  <canvas id="game" tabindex="-1"></canvas>
+  <div id="loading" role="status"><span id="message">Anadolu Koşusu yükleniyor</span><div id="track"><div id="fill"></div></div></div>
+  <script>
+    (function () {
+      var canvas = document.getElementById('game');
+      var loading = document.getElementById('loading');
+      var script = document.createElement('script');
+      script.src = 'Build-v1/9687180f046c0bbba2477c3991745c64.loader.js';
+      script.onerror = function () { document.getElementById('message').textContent = 'Oyun yüklenemedi. Sayfayı yenileyin.'; };
+      script.onload = function () {
+        createUnityInstance(canvas, {
+          dataUrl: 'Build-v1/256ec3658f6b6c53af400f10acc09f44.data.unityweb',
+          frameworkUrl: 'Build-v1/66d70071fb3f26e112327db7125b7299.framework.js.unityweb',
+          codeUrl: 'Build-v1/28936958a7db1e641856e545b522c56a.wasm.unityweb',
+          streamingAssetsUrl: 'StreamingAssets',
+          companyName: "DefaultCompany",
+          productName: "Anadolu Koşusu",
+          productVersion: "0.1.0",
+          devicePixelRatio: Math.min(window.devicePixelRatio || 1, 2)
+        }, function (progress) {
+          document.getElementById('fill').style.width = Math.round(progress * 100) + '%';
+        }).then(function () {
+          loading.remove();
+          canvas.focus();
+        }).catch(function (error) {
+          document.getElementById('message').textContent = 'Oyun başlatılamadı: ' + error;
+        });
+      };
+      document.body.appendChild(script);
+    })();
+  </script>
+</body>
+</html>

@@ -21,5 +21,17 @@
       "sandbox",
       "hayatta kalma"
     ]
+  },
+  {
+    "title": "Anadolu Koşusu",
+    "desc": "Erzurum, Amasya, Çorum ve Yozgat sokaklarında bekçiden kaç. Kostüm topla, yöresel esprilerle koş.",
+    "path": "games/anadolu-kosusu/",
+    "icon": "🏃",
+    "theme": "sunset",
+    "tags": [
+      "sonsuz koşu",
+      "5 şehir",
+      "3D"
+    ]
   }
 ]
