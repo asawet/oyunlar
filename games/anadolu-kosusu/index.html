@@ -28,7 +28,7 @@
     #fullscreen:hover, #fullscreen:focus-visible { background: #3a3347; outline: 2px solid #F5C542; }
     @media (orientation: portrait) { #fullscreen { top: 22vw; right: 8px; min-height: 36px; padding: 0 10px; font-size: 13px; } }
   </style>
-  <!-- Offline list read by the hub service worker: href="Build-v2/256ec3658f6b6c53af400f10acc09f44.data.unityweb" href="Build-v2/28936958a7db1e641856e545b522c56a.wasm.unityweb" href="Build-v2/66d70071fb3f26e112327db7125b7299.framework.js.unityweb" href="Build-v2/9687180f046c0bbba2477c3991745c64.loader.js" -->
+  <!-- Offline list read by the hub service worker: href="Build-v3/261772b3a618d132d8a0e83679fb9d8b.data.unityweb" href="Build-v3/66d70071fb3f26e112327db7125b7299.framework.js.unityweb" href="Build-v3/a639133322482a739dfda3927af5af14.wasm.unityweb" href="Build-v3/eaf51251f0b1c2223e868b19e807b56d.loader.js" -->
   <style>
     #hub-back { display: none; position: fixed; top: max(12px, env(safe-area-inset-top)); left: 12px; z-index: 20; align-items: center; min-height: 40px; padding: 0 14px; border-radius: 10px; background: rgba(36, 31, 46, .9); color: #FBF2DF; font: 700 14px/1 system-ui, sans-serif; text-decoration: none; }
     body.in-menu #hub-back { display: inline-flex; }
@@ -66,13 +66,13 @@
         });
       }
       var script = document.createElement('script');
-      script.src = 'Build-v2/9687180f046c0bbba2477c3991745c64.loader.js';
+      script.src = 'Build-v3/eaf51251f0b1c2223e868b19e807b56d.loader.js';
       script.onerror = function () { document.getElementById('message').textContent = 'Oyun yüklenemedi. Sayfayı yenileyin.'; };
       script.onload = function () {
         createUnityInstance(canvas, {
-          dataUrl: 'Build-v2/256ec3658f6b6c53af400f10acc09f44.data.unityweb',
-          frameworkUrl: 'Build-v2/66d70071fb3f26e112327db7125b7299.framework.js.unityweb',
-          codeUrl: 'Build-v2/28936958a7db1e641856e545b522c56a.wasm.unityweb',
+          dataUrl: 'Build-v3/261772b3a618d132d8a0e83679fb9d8b.data.unityweb',
+          frameworkUrl: 'Build-v3/66d70071fb3f26e112327db7125b7299.framework.js.unityweb',
+          codeUrl: 'Build-v3/a639133322482a739dfda3927af5af14.wasm.unityweb',
           streamingAssetsUrl: 'StreamingAssets',
           companyName: "DefaultCompany",
           productName: "Anadolu Koşusu",
